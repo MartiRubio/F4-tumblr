@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
+import django_heroku
+
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -26,11 +28,14 @@ SECRET_KEY = '##=%z95^i=n97^p6d(g%^tb$$!mz)_r@^!sxm=sh9fvag+e^xl'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+ALLOWED_HOSTS = ['127.0.0.1', '.herokuapp.com']
 
 MEDIA_ROOT= os.path.join(BASE_DIR, 'media/')
 MEDIA_URL= "/media/"
 
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Application definition
 
@@ -44,8 +49,6 @@ INSTALLED_APPS = [
     'tumblr.apps.TumblrConfig',
 ]
 
-AUTH_USER_MODEL = 'tumblr.UserProfile'
-
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -54,6 +57,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 
@@ -91,14 +95,27 @@ DATABASES = {
 }
 '''
 DATABASES = {
-    'default': {
+    'alt': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'dumblr',
         'USER': 'root',
         'PASSWORD': 'adminadmin',
         'HOST': 'localhost',
+    },
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
     }
+
 }
+
+'''
+    'ENGINE': 'django.db.backends.mysql',
+    'NAME': 'heroku_b871a46ce76e74d',
+    'USER': 'b28ea2e251a07d',
+    'PASSWORD': '322006ce',
+    'PORT': '3306',
+    'HOST': '127.0.0.1',}
+    '''
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
@@ -118,6 +135,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTH_USER_MODEL = 'tumblr.UserProfile'
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
@@ -139,11 +157,25 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static"),
-    "static"
+    # os.path.join(BASE_DIR, 'tumblr/static'),
+    os.path.join(BASE_DIR, 'static'),
 ]
 
 # Redirects the logged user to the specifed url (By default : homepage)
 LOGIN_REDIRECT_URL = '/'
 
 LOGIN_URL = '/accounts/login/'
+
+
+# Allow all host hosts/domain names for this site
+ALLOWED_HOSTS = ['*']
+
+# Parse database configuration from $DATABASE_URL
+import dj_database_url
+
+DATABASES = { 'default' : dj_database_url.config()}
+
+
+print(DATABASES['default'])
+
+django_heroku.settings(locals())
